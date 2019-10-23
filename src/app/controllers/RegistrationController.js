@@ -10,16 +10,22 @@ class RegistrationController {
     }
 
     const { student_id } = req.params;
+    const { start_date, end_date, plan_id, price } = req.body;
 
-    const { start_date, end_date, plan_id } = await Registration.create(
-      req.body
-    );
+    await Registration.create({
+      student_id,
+      start_date,
+      end_date,
+      plan_id,
+      price,
+    });
 
     return res.json({
       student_id,
       plan_id,
       start_date,
       end_date,
+      price,
     });
   }
 }
