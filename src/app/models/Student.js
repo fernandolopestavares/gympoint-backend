@@ -14,6 +14,8 @@ class Students extends Model {
         sequelize,
       }
     );
+
+    return this;
   }
 
   checkEmail(oldEmail) {
