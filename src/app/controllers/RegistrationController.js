@@ -1,11 +1,11 @@
 import * as Yup from 'yup';
-import { parseISO, addMonths, isEqual, format } from 'date-fns';
-import pt from 'date-fns/locale/pt';
+import { parseISO, addMonths, isEqual } from 'date-fns';
 import Student from '../models/Student';
 import Registration from '../models/Registration';
 import Plan from '../models/Plan';
 
-import Mail from '../../lib/Mail';
+import RegistrationMail from '../jobs/RegistrationMail';
+import Queue from '../../lib/Queue';
 
 class RegistrationController {
   async index(req, res) {
@@ -83,18 +83,12 @@ class RegistrationController {
       price: planPrice,
     });
 
-    await Mail.sendMail({
-      to: `${student.name} <${student.email}>`,
-      subject: 'Realização de Matrícula',
-      template: 'registration',
-      context: {
-        student: student.name,
-        plan_name: plan.title,
-        price: planPrice,
-        date: format(finalMonth, "'dia' dd 'de' MMMM', às' H:mm'h'", {
-          locale: pt,
-        }),
-      },
+    /** Email */
+    await Queue.add(RegistrationMail.key, {
+      student,
+      plan,
+      planPrice,
+      finalMonth,
     });
 
     return res.json({
@@ -162,6 +156,9 @@ class RegistrationController {
 
   async delete(req, res) {
     const { regist_id } = req.params;
+    /**
+     *  Implementar condicao caso nao exista o ID
+     */
 
     const registration = await Registration.findByPk(regist_id);
 

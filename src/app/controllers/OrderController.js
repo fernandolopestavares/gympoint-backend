@@ -1,6 +1,8 @@
 import HelpOrder from '../models/HelpOrder';
 import Student from '../models/Student';
-import Mail from '../../lib/Mail';
+
+import AnswerMail from '../jobs/AnswerMail';
+import Queue from '../../lib/Queue';
 
 class OrderController {
   async index(req, res) {
@@ -42,15 +44,12 @@ class OrderController {
     helpOrder.answer_at = date;
     await helpOrder.save();
 
-    await Mail.sendMail({
-      to: `${student.name} <${student.email}>`,
-      subject: 'Resposta a sua pergunta',
-      template: 'answer',
-      context: {
-        student: student.name,
-        question: helpOrder.question,
-        answer: helpOrder.answer,
-      },
+    /**
+     * Email
+     */
+    await Queue.add(AnswerMail.key, {
+      helpOrder,
+      student,
     });
 
     return res.json(helpOrder);
