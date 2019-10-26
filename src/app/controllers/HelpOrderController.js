@@ -1,3 +1,4 @@
+import * as Yup from 'yup';
 import HelpOrder from '../models/HelpOrder';
 import Student from '../models/Student';
 
@@ -21,6 +22,14 @@ class HelpOrderController {
   }
 
   async store(req, res) {
+    const schema = Yup.object().shape({
+      question: Yup.string().required(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'A message is required' });
+    }
+
     const { id } = req.params;
 
     const student = await Student.findByPk(id);
@@ -54,6 +63,14 @@ class HelpOrderController {
   }
 
   async update(req, res) {
+    const schema = Yup.object().shape({
+      question: Yup.string().required(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'A message is required' });
+    }
+
     const { id } = req.params;
 
     const student = await Student.findByPk(id);

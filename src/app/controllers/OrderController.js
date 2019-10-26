@@ -1,6 +1,6 @@
+import * as Yup from 'yup';
 import HelpOrder from '../models/HelpOrder';
 import Student from '../models/Student';
-
 import AnswerMail from '../jobs/AnswerMail';
 import Queue from '../../lib/Queue';
 
@@ -23,6 +23,13 @@ class OrderController {
   }
 
   async store(req, res) {
+    const schema = Yup.object().shape({
+      answer: Yup.string().required(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'An answer is required' });
+    }
     const { id } = req.params;
 
     const helpOrder = await HelpOrder.findOne({
