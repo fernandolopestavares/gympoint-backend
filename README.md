@@ -1,6 +1,7 @@
 <h1 align="center">
-  <img alt="Gympoint" title="Gympoint" src=".github/logo.png" width="200px" />
+<img alt="Gympoint" title="Gympoint" src="https://user-images.githubusercontent.com/54908803/67093399-ecf6ff80-f187-11e9-863a-6c36538c7969.png" width="200px" />
 </h1>
+
 
 <h3 align="center">
   Desafio 3: Gympoint, continuando a aplicação
