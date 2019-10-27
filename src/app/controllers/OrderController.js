@@ -18,7 +18,14 @@ class OrderController {
 
     const orderById = await HelpOrder.findAll({
       where: { student_id: student.id },
-      attributes: ['id', 'student_id', 'answer', 'answer_at', 'created_at'],
+      attributes: [
+        'id',
+        'student_id',
+        'answer',
+        'question',
+        'answer_at',
+        'created_at',
+      ],
     });
 
     if (orderById.length === 0) {
