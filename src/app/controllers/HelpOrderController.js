@@ -3,24 +3,6 @@ import HelpOrder from '../models/HelpOrder';
 import Student from '../models/Student';
 
 class HelpOrderController {
-  async index(req, res) {
-    const { id } = req.params;
-
-    const helpOrder = await HelpOrder.findAll({
-      where: { student_id: id },
-      attributes: [
-        'id',
-        'student_id',
-        'question',
-        'answer',
-        'created_at',
-        'answer_at',
-      ],
-    });
-
-    return res.json(helpOrder);
-  }
-
   async store(req, res) {
     const schema = Yup.object().shape({
       question: Yup.string().required(),
