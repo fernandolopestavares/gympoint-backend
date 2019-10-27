@@ -5,6 +5,31 @@ import AnswerMail from '../jobs/AnswerMail';
 import Queue from '../../lib/Queue';
 
 class OrderController {
+  async show(req, res) {
+    const { id } = req.params;
+
+    const student = await Student.findOne({
+      where: { id },
+    });
+
+    if (!student) {
+      return res.json({ error: 'Student does not exist' });
+    }
+
+    const orderById = await HelpOrder.findAll({
+      where: { student_id: student.id },
+      attributes: ['id', 'student_id', 'answer', 'answer_at', 'created_at'],
+    });
+
+    if (orderById.length === 0) {
+      return res.json({
+        error: 'Does not exists help orders with this Student id',
+      });
+    }
+
+    return res.json(orderById);
+  }
+
   async index(req, res) {
     const ordersWithoutanswer = await HelpOrder.findAll({
       where: { answer: null },
@@ -18,6 +43,10 @@ class OrderController {
       attributes: ['id', 'student_id', 'question', 'created_at'],
       order: ['student_id'],
     });
+
+    if (ordersWithoutanswer.length === 0) {
+      return res.json({ message: 'All help orders have been answered' });
+    }
 
     return res.json(ordersWithoutanswer);
   }
