@@ -2,6 +2,16 @@ import * as Yup from 'yup';
 import Student from '../models/Student';
 
 class StudentController {
+  async index(req, res) {
+    const students = await Student.findAll();
+
+    if (!students) {
+      return res.status(400).json({ error: 'Students not found' });
+    }
+
+    return res.json(students);
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
@@ -91,6 +101,19 @@ class StudentController {
       height,
       weight,
     });
+  }
+
+  async delete(req, res) {
+    const { id } = req.params;
+    const student = await Student.findByPk(id);
+
+    if (!student) {
+      return res.status(400).json({ error: 'Student not found' });
+    }
+
+    await student.destroy();
+
+    return res.send();
   }
 }
 
