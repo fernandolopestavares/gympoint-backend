@@ -64,9 +64,6 @@ class StudentController {
     const schema = Yup.object().shape({
       name: Yup.string(),
       email: Yup.string().email(),
-      confirmEmail: Yup.string().when('email', (email, field) =>
-        email ? field.required().oneOf([Yup.ref('email')]) : field
-      ),
       age: Yup.number().min(1),
       height: Yup.number(),
       weight: Yup.number(),
@@ -78,28 +75,15 @@ class StudentController {
 
     const { id } = req.params;
     const { email } = req.body;
-    const emailExists = email !== undefined;
 
     const student = await Student.findByPk(id);
 
-    if (emailExists && email !== student.email) {
+    if (email !== student.email) {
       const studentExists = await Student.findOne({ where: { email } });
 
       if (studentExists) {
-        return res.status(400).json({ error: 'Student already exists' });
+        return res.status(400).json({ error: 'E-mail already in use' });
       }
-    }
-
-    if (!emailExists) {
-      const { name, height, weight, age } = await student.update(req.body);
-
-      return res.json({
-        id,
-        name,
-        age,
-        height,
-        weight,
-      });
     }
 
     const { name, height, weight, age } = await student.update(req.body);
