@@ -1,9 +1,30 @@
 import * as Yup from 'yup';
+import { Op } from 'sequelize';
 import Student from '../models/Student';
 
 class StudentController {
   async index(req, res) {
-    const students = await Student.findAll();
+    const { name } = req.query;
+
+    if (name) {
+      const students = await Student.findAll({
+        where: { name: { [Op.iLike]: `%${name}%` } },
+      });
+
+      if (!students) {
+        return res.status(400).json({ error: 'Students not found' });
+      }
+
+      return res.json(students);
+    }
+
+    const { page = 1 } = req.query;
+
+    const students = await Student.findAndCountAll({
+      limit: 10,
+      offset: (page - 1) * 10,
+      order: ['name'],
+    });
 
     if (!students) {
       return res.status(400).json({ error: 'Students not found' });

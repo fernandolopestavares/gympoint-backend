@@ -3,9 +3,13 @@ import Plan from '../models/Plan';
 
 class PlanController {
   async index(req, res) {
-    const plans = await Plan.findAll({
+    const { page = 1 } = req.query;
+
+    const plans = await Plan.findAndCountAll({
       attributes: ['id', 'title', 'price', 'duration'],
       order: ['id'],
+      limit: 10,
+      offset: (page - 1) * 10,
     });
 
     if (!plans) {
@@ -13,6 +17,18 @@ class PlanController {
     }
 
     return res.json(plans);
+  }
+
+  async show(req, res) {
+    const { id } = req.params;
+
+    const plan = await Plan.findByPk(id);
+
+    if (!plan) {
+      return res.status(400).json({ error: 'Plan not found' });
+    }
+
+    return res.json(plan);
   }
 
   async store(req, res) {
@@ -66,10 +82,6 @@ class PlanController {
 
     if (!plan) {
       return res.status(400).json({ error: 'Plan does not exist ' });
-    }
-
-    if (!(title !== plan.title)) {
-      return res.status(401).json({ error: 'Title already in use' });
     }
 
     const { price, duration } = await plan.update(req.body);

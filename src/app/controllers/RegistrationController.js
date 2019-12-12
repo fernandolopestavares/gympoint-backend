@@ -8,10 +8,10 @@ import RegistrationMail from '../jobs/RegistrationMail';
 import Queue from '../../lib/Queue';
 
 class RegistrationController {
-  async index(req, res) {
-    const { page = 1 } = req.query;
+  async show(req, res) {
+    const { id } = req.params;
 
-    const registration = await Registration.findAll({
+    const registration = await Registration.findByPk(id, {
       attributes: [
         'id',
         'start_date',
@@ -21,8 +21,42 @@ class RegistrationController {
         'price',
         'active',
       ],
-      limit: 20,
-      offset: (page - 1) * 20,
+      include: [
+        {
+          model: Plan,
+          as: 'plan',
+          attributes: ['title', 'price', 'duration', 'id'],
+        },
+        {
+          model: Student,
+          as: 'student',
+          attributes: ['name', 'id'],
+        },
+      ],
+    });
+
+    if (!registration) {
+      return res.status(400).json({ error: 'Registration not found' });
+    }
+
+    return res.json(registration);
+  }
+
+  async index(req, res) {
+    const { page = 1 } = req.query;
+
+    const registration = await Registration.findAndCountAll({
+      attributes: [
+        'id',
+        'start_date',
+        'end_date',
+        'student_id',
+        'plan_id',
+        'price',
+        'active',
+      ],
+      limit: 10,
+      offset: (page - 1) * 10,
       include: [
         {
           model: Plan,
@@ -46,17 +80,19 @@ class RegistrationController {
       plan_id: Yup.number().required(),
     });
 
+    const { student_id } = req.params;
+
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation Fails' });
+      return res.status(400).json({ error: 'All fields are required' });
     }
 
-    const student = await Student.findByPk(req.params.student_id);
+    const student = await Student.findByPk(student_id);
 
     if (!student) {
       return res.status(400).json({ error: 'Student not found' });
     }
 
-    if (await Registration.findOne({ where: { student_id: student.id } })) {
+    if (await Registration.findOne({ where: { student_id } })) {
       return res
         .status(400)
         .json({ error: 'Already exists a registration with this student' });
@@ -70,7 +106,6 @@ class RegistrationController {
       return res.status(400).json({ error: 'Plan not found' });
     }
 
-    const { student_id } = req.params;
     const { start_date } = req.body;
 
     const finalMonth = addMonths(parseISO(start_date), plan.duration);
@@ -103,6 +138,7 @@ class RegistrationController {
 
   async update(req, res) {
     const schema = Yup.object().shape({
+      student_id: Yup.number(),
       start_date: Yup.date(),
       plan_id: Yup.number(),
     });
@@ -117,6 +153,14 @@ class RegistrationController {
 
     if (!registration) {
       return res.status(400).json({ error: 'Registration does not exist' });
+    }
+
+    const { student_id } = req.body;
+
+    const student = await Student.findByPk(student_id);
+
+    if (!student) {
+      return res.status(400).json({ error: 'Student not found' });
     }
 
     const { plan_id } = req.body;
@@ -140,19 +184,15 @@ class RegistrationController {
 
     await registration.update({
       plan_id,
+      student_id: student.id,
       start_date,
       end_date: finalMonth,
       price: planPrice,
     });
 
-    return res.json({
-      registration: {
-        plan_id,
-        start_date,
-        end_date: finalMonth,
-        price: planPrice,
-      },
-    });
+    const updatedRegistration = await Registration.findByPk(regist_id);
+
+    return res.json(updatedRegistration);
   }
 
   async delete(req, res) {

@@ -22,19 +22,19 @@ class HelpOrderController {
 
     const { question } = req.body;
 
-    const helpOrder = await HelpOrder.findOne({
-      where: {
-        student_id: id,
-        question,
-      },
-      attributes: ['id', 'student_id', 'question', 'created_at'],
-    });
+    // const helpOrder = await HelpOrder.findOne({
+    //   where: {
+    //     student_id: id,
+    //     question,
+    //   },
+    //   attributes: ['id', 'student_id', 'question', 'created_at'],
+    // });
 
-    if (helpOrder) {
-      return res
-        .status(400)
-        .json({ error: 'Already exists a question made by you' });
-    }
+    // if (helpOrder) {
+    //   return res
+    //     .status(400)
+    //     .json({ error: 'Already exists a question made by you' });
+    // }
 
     const createorder = await HelpOrder.create({
       student_id: id,
