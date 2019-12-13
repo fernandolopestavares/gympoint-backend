@@ -5,10 +5,15 @@ import Student from '../models/Student';
 class StudentController {
   async index(req, res) {
     const { name } = req.query;
+    const { page = 1 } = req.query;
 
     if (name) {
-      const students = await Student.findAll({
-        where: { name: { [Op.iLike]: `%${name}%` } },
+      const students = await Student.findAndCountAll({
+        where: {
+          name: { [Op.iLike]: `%${name}%` },
+        },
+        limit: 10,
+        offset: (page - 1) * 10,
       });
 
       if (!students) {
@@ -17,8 +22,6 @@ class StudentController {
 
       return res.json(students);
     }
-
-    const { page = 1 } = req.query;
 
     const students = await Student.findAndCountAll({
       limit: 10,
