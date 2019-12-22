@@ -8,9 +8,11 @@ class OrderController {
   async show(req, res) {
     const { id } = req.params;
 
-    const helpOrder = await HelpOrder.findByPk(id);
+    const helpOrder = await HelpOrder.findAll({
+      where: { student_id: id },
+    });
 
-    if (!helpOrder) {
+    if (helpOrder.length === 0) {
       return res.status(400).json({ error: 'Help order not found' });
     }
 
@@ -18,7 +20,21 @@ class OrderController {
   }
 
   async index(req, res) {
-    const { page } = req.query;
+    const { page = 1 } = req.query;
+    const { id } = req.query;
+
+    if (id) {
+      const studentOrders = await HelpOrder.findAll({
+        where: { student_id: id },
+        order: [['created_at', 'DESC']],
+      });
+
+      if (studentOrders.length === 0) {
+        return res.status(400).json({ error: 'Does not exist any help order' });
+      }
+
+      return res.json(studentOrders);
+    }
 
     const ordersWithoutanswer = await HelpOrder.findAndCountAll({
       where: { answer: null },

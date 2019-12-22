@@ -13,9 +13,10 @@ class CheckinController {
       return res.status(400).json({ error: 'Student does not exist' });
     }
 
-    const checkins = await Checkin.findAll({
+    const checkins = await Checkin.findAndCountAll({
       where: { student_id: id },
-      attributes: ['student_id', 'created_at'],
+      order: [['id', 'desc']],
+      attributes: ['id', 'student_id', 'created_at'],
     });
 
     return res.json(checkins);
@@ -47,15 +48,11 @@ class CheckinController {
       }
     }
 
-    await Checkin.create({
+    const newCheckIn = await Checkin.create({
       student_id: id,
     });
 
-    return res.json({
-      checkIn: {
-        student,
-      },
-    });
+    return res.json(newCheckIn);
   }
 }
 

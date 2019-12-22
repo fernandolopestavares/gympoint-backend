@@ -24,16 +24,16 @@ routes.get('/students/:id/checkins', CheckinController.index);
 routes.post('/students/:id/help-orders', HelpOrderController.store);
 routes.put('/students/:id/help-orders', HelpOrderController.update);
 
+routes.get('/students', StudentController.index);
+routes.get('/students/:id', StudentController.show);
+
+routes.get('/help-orders/students', OrderController.index);
+routes.get('/help-orders/students/:id', OrderController.show);
+
 routes.use(authMiddleware);
-
-routes.get('/students/help-orders', OrderController.index);
-
-routes.get('/students/help-orders/:id', OrderController.show);
 
 routes.post('/help-orders/:id/answer', OrderController.store);
 
-routes.get('/students', StudentController.index);
-routes.get('/students/:id', StudentController.show);
 routes.post('/students', StudentController.store);
 routes.put('/students/:id', StudentController.update);
 routes.delete('/student/:id', StudentController.delete);
