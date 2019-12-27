@@ -8,13 +8,7 @@ class OrderController {
   async show(req, res) {
     const { id } = req.params;
 
-    const helpOrder = await HelpOrder.findAll({
-      where: { student_id: id },
-    });
-
-    if (helpOrder.length === 0) {
-      return res.status(400).json({ error: 'Help order not found' });
-    }
+    const helpOrder = await HelpOrder.findByPk(id);
 
     return res.json(helpOrder);
   }
