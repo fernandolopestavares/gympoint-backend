@@ -10,6 +10,10 @@ class OrderController {
 
     const helpOrder = await HelpOrder.findByPk(id);
 
+    if (!helpOrder) {
+      return res.status(400).json({ error: 'Order does not exists' });
+    }
+
     return res.json(helpOrder);
   }
 
@@ -81,9 +85,6 @@ class OrderController {
     helpOrder.answer_at = date;
     await helpOrder.save();
 
-    /**
-     * Email
-     */
     await Queue.add(AnswerMail.key, {
       helpOrder,
       student,

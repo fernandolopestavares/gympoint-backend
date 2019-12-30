@@ -119,7 +119,6 @@ class RegistrationController {
       price: planPrice,
     });
 
-    /** Email */
     await Queue.add(RegistrationMail.key, {
       student,
       plan,
